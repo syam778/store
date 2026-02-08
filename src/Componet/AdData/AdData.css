@@ -1,0 +1,81 @@
+/* Main container */
+.user-profile {
+  max-width: 420px;
+  margin: 40px auto;
+  padding: 24px;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.1);
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  text-align: center;
+}
+
+/* Headings */
+.user-profile h2 {
+  margin-bottom: 18px;
+  font-size: 22px;
+  color: #222;
+}
+
+/* Form */
+.profile-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Inputs */
+.userprofile {
+  padding: 12px 14px;
+  font-size: 15px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  outline: none;
+  transition: 0.25s;
+}
+
+.userprofile:focus {
+  border-color: #ff5722;
+  box-shadow: 0 0 0 3px rgba(255, 87, 34, 0.15);
+}
+
+/* Button */
+.profile-form button {
+  margin-top: 8px;
+  padding: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+  background: linear-gradient(135deg, #ff5722, #ff7043);
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.profile-form button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(255, 87, 34, 0.35);
+}
+
+/* Message */
+.msg {
+  margin-top: 14px;
+  font-size: 14px;
+  color: #e53935;
+}
+
+/* Secondary text */
+.user-profile h2:last-child {
+  margin-top: 22px;
+  font-size: 18px;
+  color: #555;
+}
+
+/* Mobile responsive */
+@media (max-width: 480px) {
+  .user-profile {
+    margin: 20px;
+    padding: 18px;
+  }
+}

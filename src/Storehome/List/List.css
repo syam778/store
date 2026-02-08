@@ -1,0 +1,116 @@
+
+.call-btn {
+  display: inline-block;
+  padding: 8px 12px;
+  background: #5ce8b4;
+  color: rgb(18, 12, 12);
+  border-radius: 10px;
+  text-decoration: none;
+  font-weight: 600;
+  cursor: pointer;
+  margin: 10px auto;
+  
+  
+}
+
+.store-page {
+  min-height: 100vh;
+  padding: 30px;
+  background: linear-gradient(135deg, #ffecd2, #fcb69f);
+  font-family: "Poppins", sans-serif;
+}
+
+/* Heading */
+.store-title {
+  text-align: center;
+  font-size: 32px;
+  font-weight: 700;
+  color: #2d3436;
+  margin-bottom: 30px;
+}
+
+/* Food grid */
+.food-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 20px;
+}
+
+/* Food card */
+.food-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Hover effect */
+.food-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+}
+
+/* Food image */
+.food-img {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 16px;
+  margin-bottom: 12px;
+   box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+
+}
+
+/* Category badge */
+.food-category {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: linear-gradient(45deg, #ff416c, #ff4b2b);
+  color: #fff;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* Food name */
+.food-name {
+  font-size: 18px;
+  font-weight: 600;
+  color: #2d3436;
+  margin-bottom: 6px;
+}
+
+/* Price */
+.food-price {
+  font-size: 16px;
+  font-weight: 700;
+  color: #27ae60;
+  margin-bottom: 6px;
+}
+
+/* Description */
+.food-desc {
+  font-size: 14px;
+  color: #636e72;
+  margin-bottom: 10px;
+}
+
+/* Location */
+.food-location {
+  font-size: 13px;
+  color: #0984e3;
+  font-weight: 500;
+}
+
+/* Loading / error */
+.center-text {
+  text-align: center;
+  font-size: 22px;
+  font-weight: 600;
+  color: #2d3436;
+}
