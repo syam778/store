@@ -234,6 +234,7 @@ const Verify = () => {
 
       if (res.data.success) {
         setMessage(res.data.message);
+        
 
         // ✅ Navigate to /add and pass store data via state
         setTimeout(() => {
@@ -303,3 +304,4 @@ const Verify = () => {
 };
 
 export default Verify;
+

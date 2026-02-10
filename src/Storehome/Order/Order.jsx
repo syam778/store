@@ -1,327 +1,4 @@
 /*
-import React, { useEffect, useRef, useState, useContext } from "react";  // main and core code
-import "./Order.css";
-import axios from "axios";
-import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
-import { StoreContext } from "../../Context/StoreContext";
-import { input } from "../../assets/output";
-
-
-const Order = () => {
-  const {url} = useContext(StoreContext)
-  const [orders, setOrders] = useState([]);
-  const [newOrderPopup, setNewOrderPopup] = useState(null);
-
-  const navigate = useNavigate();
-  //const { orderAudio } = useContext(AdminContext);
-
-  const orderAudioRef = useRef(null);
-  const doneAudioRef = useRef(null);
-  const submitAudioRef = useRef(null);
-  const errorAudioRef = useRef(null);
-
-  const prevIdsRef = useRef(new Set());
-  const firstLoadRef = useRef(true);
-
-  // 🔁 Fetch all orders
-  const fetchAllOrders = async () => {
-    try {
-      const res = await axios.get(url + "/api/order/list");
-
-      if (res.data.success) {
-        const newOrders = res.data.data || [];
-
-        const newIds = new Set(newOrders.map((o) => o._id));
-        const prevIds = prevIdsRef.current;
-
-        // Detect new order after first load
-        if (!firstLoadRef.current) {
-          const newlyArrived = newOrders.filter((o) => !prevIds.has(o._id));
-          if (newlyArrived.length > 0) {
-            orderAudioRef.current?.play().catch(() => { });
-            setNewOrderPopup(newlyArrived[0]);
-            //orderAudio.play();
-          }
-        }
-
-        firstLoadRef.current = false;
-        prevIdsRef.current = newIds;
-        setOrders(newOrders);
-      }
-    } catch (err) {
-      console.error("FETCH ERROR 👉", err);
-      toast.error("Server error while fetching orders");
-    }
-  };
-
-  // 🔽 Update order status (ENUM SAFE)
-  const statusHandler = async (event, orderId) => {
-    try {
-      const res = await axios.post(url + "/api/order/status", {
-        orderId,
-        status: event.target.value,
-      });
-
-      if (res.data.success) {
-        toast.success("Status updated");
-        doneAudioRef.current?.play().catch(() => { });
-        fetchAllOrders();
-      }
-    } catch (err) {
-      console.error("STATUS ERROR 👉", err);
-      toast.error("Status update failed");
-      errorAudioRef.current?.play().catch(() => { });
-    }
-  };
-
-  // ❌ Remove order
-  const removeOrder = async (id) => {
-    try {
-      const res = await axios.post(`${url}/api/order/remove`, { id });
-
-      if (res.data.success) {
-        toast.success("Order removed");
-        submitAudioRef.current?.play().catch(() => { });
-        fetchAllOrders();
-      }
-    } catch (err) {
-      console.error("REMOVE ERROR 👉", err);
-      toast.error("Server error");
-      errorAudioRef.current?.play().catch(() => { });
-    }
-  };
-
-  // ✅ Receive new order (set to Assigned)
-  const receiveOrder = async (id) => {
-    try {
-      const res = await axios.post(url + "/api/order/status", {
-        orderId: id,
-        status: "Assigned",   // 🔥 must match enum
-      });
-
-      if (res.data.success) {
-        toast.success("Order Received");
-        doneAudioRef.current?.play().catch(() => { });
-        setNewOrderPopup(null);
-        fetchAllOrders();
-        orderAudio.pause();
-      }
-    } catch (err) {
-      console.error("RECEIVE ERROR 👉", err);
-      toast.error("Receive failed");
-      errorAudioRef.current?.play().catch(() => { });
-    }
-  };
-
-  // ❌ Cancel order
-  const cancelOrder = async (id) => {
-    try {
-      const res = await axios.post(`${url}/api/order/remove`, { id });
-
-      if (res.data.success) {
-        toast.success("Order cancelled");
-        submitAudioRef.current?.play().catch(() => { });
-        setNewOrderPopup(null);
-        fetchAllOrders();
-      }
-    } catch (err) {
-      console.error("CANCEL ERROR 👉", err);
-      toast.error("Server error");
-      errorAudioRef.current?.play().catch(() => { });
-    }
-  };
-
-  // 🔊 Unlock audio on first click
-  const unlockAudio = () => {
-    [orderAudioRef, doneAudioRef, submitAudioRef, errorAudioRef].forEach(
-      (ref) => {
-        ref.current
-          ?.play()
-          .then(() => {
-            ref.current.pause();
-            ref.current.currentTime = 0;
-          })
-          .catch(() => { });
-      }
-    );
-  };
-
-  // ✅ SEND SINGLE ORDER TO DELIVERY PAGE
-  const sendSingleOrder = (order) => {
-    if (!order || !order._id) {
-      toast.error("Order ID missing");
-      return;
-    }
-
-    const cleanOrder = {
-      _id: order._id,
-      address: order.address,
-      amount: order.amount,
-      status: order.status,
-    };
-
-    localStorage.setItem("selectedOrder", JSON.stringify(cleanOrder));
-    navigate("/delivery/get");
-  };
-
-  // 🔁 Auto refresh
-  useEffect(() => {
-    fetchAllOrders();
-    const interval = setInterval(fetchAllOrders, 5000);
-    return () => clearInterval(interval);
-  }, []);
-
-  return (
-    <div
-      className="order"
-      style={{ padding: "50px", background: "#eee" }}
-      onClick={unlockAudio}
-    >
-      <audio ref={orderAudioRef} src="/Audios/order.mp3" preload="auto" />
-      <audio ref={doneAudioRef} src="/Audios/done.mp3" preload="auto" />
-      <audio ref={submitAudioRef} src="/Audios/submit2.mp3" preload="auto" />
-      <audio ref={errorAudioRef} src="/Audios/error.mp3" preload="auto" />
-
-      <h3>Order Page</h3>
-
-      <div className="order-list">
-        {orders.map((order, index) => (
-          <div className="order-item" key={order._id}>
-            <h4 className="order-number">Order #{index + 1}</h4>
-
-            <img src={input.admin} alt="" />
-
-            <div>
-              <p className="order-item-food">
-                Item Name -{" "}
-                {order.items.map((item, i) =>
-                  i === order.items.length - 1
-                    ? `${item.name} = ${item.quantity}`
-                    : `${item.name} = ${item.quantity}, `
-                )}
-              </p>
-
-              <p className="order-item-name">
-                Name - {order.address.firstName} {order.address.lastName}
-              </p>
-
-              <div className="order-item-add">
-                <p>Gmail - {order.address.email}</p>
-                <p>City - {order.address.city}</p>
-                <p>Pincode - {order.address.zipcode}</p>
-              </div>
-
-              <div className="phone">
-                <p>Number - {order.address.phone}</p>
-                <p>Age - {order.address.age}</p>
-                <p>Address - {order.address.address}</p>
-              </div>
-            </div>
-
-
-            
-            {order.assignedTo && typeof order.assignedTo === "object" && (
-              <div className="assigned">
-                <p><b>Assigned To:</b></p>
-                <p>ID: {order.assignedTo._id}</p>
-                <p>Special ID: {order.assignedTo.userSpecialId}</p>
-                <p>Name: {order.assignedTo.name}</p>
-                <p>Phone: {order.assignedTo.number}</p>
-              </div>
-            )}
-
-            <p>
-              {order.address.linkdata ? (
-                <a
-                  href={order.address.linkdata}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  <img className="marker" src={input.admin} alt="" />
-                  View Map
-                </a>
-              ) : (
-                "No Map"
-              )}
-            </p>
-
-            <p className="len">Items : {order.items.length}</p>
-            <p className="amount">₹{order.amount}</p>
-
-
-            <select
-              onChange={(e) => statusHandler(e, order._id)}
-              value={order.status}
-            >
-              <option value="Pending">Pending</option>
-              <option value="Assigned">Assigned</option>
-              <option value="Pickup">Pickup</option>
-              <option value="Out For Delivery">Out For Delivery</option>
-              <option value="Delivered">Delivered</option>
-            </select>
-
-            <div className="topbtn">
-              <button
-                className="remove"
-                onClick={() => removeOrder(order._id)}
-              >
-                Remove
-              </button>
-
-              <button
-                className="removem"
-                onClick={() => sendSingleOrder(order)}
-              >
-                Send
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
-
-
-      {newOrderPopup && (
-        <div className="order-popup-overlay">
-          <div className="order-popup">
-            <h3>🆕 New Order</h3>
-
-            <p>
-              <b>Name:</b> {newOrderPopup.address.firstName}{" "}
-              {newOrderPopup.address.lastName}
-            </p>
-
-            <ul>
-              {newOrderPopup.items.map((item, i) => (
-                <li key={i}>
-                  {item.name} × {item.quantity}
-                </li>
-              ))}
-            </ul>
-
-            <p>
-              <b>Amount:</b> ₹{newOrderPopup.amount}
-            </p>
-
-            <button onClick={() => receiveOrder(newOrderPopup._id)}>
-              Receive
-            </button>
-            <button
-              className="remove"
-              onClick={() => cancelOrder(newOrderPopup._id)}
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-};
-
-export default Order;  //main and core code
-*
-
 
 import { useEffect, useState } from "react"; // main code new
 import axios from "axios";
@@ -574,9 +251,12 @@ export default Order;
 import { useEffect, useState } from "react";
 import axios from "axios";
 import "./Order.css";
+import { useContext } from "react";
+import { StoreContext } from "../../Context/StoreContext";
 
 const Order = () => {
   const storeId = "697df53ec26ff31e523578e9";
+  const {url} = useContext(StoreContext);
 
   const [orders, setOrders] = useState([]);
   const [knownOrderIds, setKnownOrderIds] = useState([]);
@@ -588,7 +268,7 @@ const Order = () => {
   const fetchOrders = async () => {
     try {
       const res = await axios.get(
-        `http://localhost:3000/api/orders/store/${storeId}`
+        `${url}/api/orders/store/${storeId}`
       );
 
       const fetchedOrders = res.data.data || [];
@@ -619,7 +299,7 @@ const Order = () => {
   // ✅ Accept Order
   const handleAccept = async () => {
     await axios.put(
-      `http://localhost:3000/api/orders/${popupOrder._id}/status`,
+      `${url}/api/orders/${popupOrder._id}/status`,
       { status: "Accepted" }
     );
     setPopupOrder(null);
@@ -629,7 +309,7 @@ const Order = () => {
   // ❌ Reject Order
   const handleReject = async () => {
     await axios.put(
-      `http://localhost:3000/api/orders/${popupOrder._id}/status`,
+      `${url}/api/orders/${popupOrder._id}/status`,
       { status: "Rejected" }
     );
     setPopupOrder(null);

@@ -7,7 +7,7 @@ import { StoreContext } from "../Context/StoreContext";
 
 const Home = () => {
   const navigate = useNavigate()
-  const {doneAudio,submitAudio,wonAudio,addAudio,timeAudio}= useContext(StoreContext)
+  const {doneAudio,submitAudio,wonAudio,addAudio,timeAudio,url}= useContext(StoreContext)
   return (
     <div className="home">
      
@@ -18,7 +18,7 @@ const Home = () => {
           alt="Store"
           className="home-img"
         />
-        <button onClick={() =>{ wonAudio.play(); navigate("/create")}}className="btn">Cleck</button>
+        <button onClick={() =>{ wonAudio.play(); navigate("/create")}}className="btn5">Create Store</button>
 
         <div className="nextpage">
             <p>You Are Alredy Submit Data You Goo <b>Verify Your Data</b></p>
@@ -39,6 +39,8 @@ const Home = () => {
           <h3>💳 Easy Payment</h3>
           <p>Cash on delivery & online payment</p>
         </div>
+        
+        
       </div>
       
     </div>

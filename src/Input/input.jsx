@@ -714,11 +714,14 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./Input.css";
+import { useContext } from "react";
+import { StoreContext } from "../Context/StoreContext";
 
-const API_BASE = "http://localhost:3000";
+//const API_BASE = "http://localhost:3000";
 
 const Input = () => {
   const navigate = useNavigate();
+  const {url}= useContext(StoreContext)
 
   const [formData, setFormData] = useState({
     username: "",
@@ -749,7 +752,7 @@ const Input = () => {
 
     try {
       // 🔹 STEP 1: CHECK USERNAME
-      const checkRes = await axios.post(`${API_BASE}/api/homestore/check`, {
+      const checkRes = await axios.post(`${url}/api/homestore/check`, {
         username: formData.username,
         gmail: formData.gmail,
       });
@@ -765,7 +768,7 @@ const Input = () => {
 
     try {
       // 🔹 STEP 2: CREATE STORE (ONLY IF NOT EXISTS)
-      await axios.post(`${API_BASE}/api/homestore/create`, formData);
+      await axios.post(`${url}/api/homestore/create`, formData);
 
       // ✅ AFTER CREATE → NEXT PAGE
       navigate("/verify");
