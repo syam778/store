@@ -7,12 +7,12 @@ export const StoreContext = createContext(null)
 const StoreContextProvider = ({children}) => {
 
     const [cartItems, setCartItems] = useState({})
-    //const url = "https://back-q3wv.onrender.com "
+    
     const url = "http://localhost:3000"
     const Burl = "http://localhost:5176";
-    //const url = "https://back-ylnd.onrender.com" 
-    //const url = "https://backend3-nt7k.onrender.com"
-    //const [token, setToken] = useState("")
+
+
+    
     const [storeUser, setStoreUser] = useState(null);
     const [food_list, setFoodList] = useState([])
     const [query, setQuery] = useState('')
