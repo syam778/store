@@ -84,7 +84,7 @@ export default Order;
 
 
 
-
+/*
 import { useEffect, useState } from "react";
 import axios from "axios";
 import "./Order.css";
@@ -246,7 +246,7 @@ const Order = () => {
 };
 
 export default Order;
-*/
+/*
 
 import { useEffect, useState } from "react";
 import axios from "axios";
@@ -345,7 +345,7 @@ const Order = () => {
             <p>Date: {new Date(order.date).toLocaleString()}</p>
             <p>Payment: {order.payment ? "✅ Paid" : "❌ Pending"}</p>
 
-            {/* ITEMS */}
+            
             <p className="order-item-food">
               <b>Items:</b>{" "}
               {order.items.map((item, i) =>
@@ -355,7 +355,6 @@ const Order = () => {
               )}
             </p>
 
-            {/* CUSTOMER */}
             <p className="order-item-name">
               <b>Name:</b> {order.address?.firstName}{" "}
               {order.address?.lastName}
@@ -373,12 +372,12 @@ const Order = () => {
               <p>Address: {order.address?.address}</p>
             </div>
 
-            {/* TOTAL */}
+            
             <p className="order-total">
               🧾 Total Amount: ₹{orderTotal}
             </p>
 
-            {/* ASSIGNED DELIVERY */}
+           
             {order.assignedTo && typeof order.assignedTo === "object" && (
               <div className="assigned">
                 <p><b>Assigned To:</b></p>
@@ -392,7 +391,7 @@ const Order = () => {
         );
       })}
 
-      {/* 🔔 POPUP FOR NEW ORDER */}
+     
       {popupOrder && (
         <div className="order-popup-overlay">
           <div className="order-popup">
@@ -402,6 +401,204 @@ const Order = () => {
               <p key={i}>
                 {item.name} × {item.quantity} — ₹{item.amount}
               </p>
+            ))}
+
+            <div className="popup-actions">
+              <button className="accept-btn" onClick={handleAccept}>
+                ✅ Accept
+              </button>
+              <button className="reject-btn" onClick={handleReject}>
+                ❌ Reject
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default Order;
+*/
+
+import { useEffect, useState } from "react";
+import axios from "axios";
+import "./Order.css";
+
+const Order = () => {
+  // ✅ Use storeId from localStorage or empty string
+  const [storeId, setStoreId] = useState(() => {
+    return localStorage.getItem("storeId") || "";
+  });
+
+  const [orders, setOrders] = useState([]);
+  const [knownOrderIds, setKnownOrderIds] = useState([]);
+  const [popupOrder, setPopupOrder] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  // ✅ Save storeId to localStorage whenever it changes
+  useEffect(() => {
+    if (storeId) localStorage.setItem("storeId", storeId);
+  }, [storeId]);
+
+  // 🔁 Fetch orders from backend
+  const fetchOrders = async () => {
+    if (!storeId) return;
+    setLoading(true);
+    setError("");
+
+    try {
+      const res = await axios.get(
+        `http://localhost:3000/api/orders/store/${storeId}`
+      );
+      const fetchedOrders = res.data.data || [];
+
+      // 🔔 detect NEW order
+      if (knownOrderIds.length > 0) {
+        const newOrder = fetchedOrders.find(
+          (o) => !knownOrderIds.includes(o._id) && o.status === "Pending"
+        );
+
+        if (newOrder) setPopupOrder(newOrder);
+      }
+
+      setOrders(fetchedOrders);
+      setKnownOrderIds(fetchedOrders.map((o) => o._id));
+    } catch (err) {
+      console.error(err);
+      setError("Failed to load orders");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 🔁 Auto-refresh every 8 sec
+  useEffect(() => {
+    fetchOrders();
+    const interval = setInterval(fetchOrders, 8000);
+    return () => clearInterval(interval);
+  }, [storeId]);
+
+  // ✅ Accept order
+  const handleAccept = async () => {
+    if (!popupOrder) return;
+    await axios.put(
+      `http://localhost:3000/api/orders/${popupOrder._id}/status`,
+      { status: "Accepted" }
+    );
+    setPopupOrder(null);
+    fetchOrders();
+  };
+
+  // ❌ Reject order
+  const handleReject = async () => {
+    if (!popupOrder) return;
+    await axios.put(
+      `http://localhost:3000/api/orders/${popupOrder._id}/status`,
+      { status: "Rejected" }
+    );
+    setPopupOrder(null);
+    fetchOrders();
+  };
+
+  // ✅ Clear storeId
+  const clearStore = () => {
+    localStorage.removeItem("storeId");
+    setStoreId("");
+    setOrders([]);
+    setKnownOrderIds([]);
+    setPopupOrder(null);
+  };
+
+  if (!storeId)
+    return (
+      <div className="center-text">
+        <h2>Enter Store ID to load orders</h2>
+        <input
+          type="text"
+          placeholder="Store ID"
+          value={storeId}
+          onChange={(e) => setStoreId(e.target.value)}
+          style={{ padding: "8px", width: "300px" }}
+        />
+        <button style={{ marginLeft: "10px", padding: "8px" }} onClick={fetchOrders}>
+          Load Orders
+        </button>
+      </div>
+    );
+
+  if (loading) return <p className="center-text">Loading orders...</p>;
+  if (error) return <p className="center-text">{error}</p>;
+  if (orders.length === 0) return <p className="center-text">No orders yet</p>;
+
+  return (
+    <div className="orders-page">
+      <h2 className="orders-title">📦 Store Orders</h2>
+
+      <div style={{ marginBottom: "20px" }}>
+        <button style={{ padding: "8px" }} onClick={clearStore}>
+          Clear Store ID
+        </button>
+      </div>
+
+      <div className="orders-grid">
+        {orders.map((order, index) => (
+          <div className="order-card" key={order._id}>
+            <h3>Order #{index + 1}</h3>
+            <p>
+              Status:{" "}
+              <span className={`status ${order.status.toLowerCase()}`}>
+                {order.status}
+              </span>
+            </p>
+            <p>Date: {new Date(order.date).toLocaleString()}</p>
+            <p>Payment: {order.payment ? "✅ Paid" : "❌ Pending"}</p>
+
+            <div className="items-list">
+              <h4>Items</h4>
+              {order.items.map((item, i) => (
+                <div className="item-card" key={i}>
+                  <img
+                    src={`http://localhost:3000/images/${item.image}`}
+                    alt={item.name}
+                    onError={(e) => {
+                      e.target.src = "https://via.placeholder.com/80";
+                    }}
+                  />
+                  <div className="item-info">
+                    <p className="item-name">{item.name}</p>
+                    <p>Qty: {item.quantity}</p>
+                    <p>₹{item.amount}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <p className="order-address">
+              📍 {order.address?.street}, {order.address?.city}
+            </p>
+          </div>
+        ))}
+      </div>
+
+      {popupOrder && (
+        <div className="order-popup-overlay">
+          <div className="order-popup">
+            <h2>🚨 New Order Received</h2>
+            {popupOrder.items.map((item, i) => (
+              <div className="popup-item" key={i}>
+                <img
+                  src={`http://localhost:3000/images/${encodeURIComponent(item.image)}`}
+                  alt={item.name}
+                  onError={(e) => (e.target.src = "https://via.placeholder.com/80")}
+                />
+                <div>
+                  <p>{item.name}</p>
+                  <p>Qty: {item.quantity}</p>
+                  <p>₹{item.amount}</p>
+                </div>
+              </div>
             ))}
 
             <div className="popup-actions">

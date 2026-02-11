@@ -8,7 +8,8 @@ const StoreContextProvider = ({children}) => {
 
     const [cartItems, setCartItems] = useState({})
     
-    const url = "http://localhost:3000"
+    //const url = "http://localhost:3000"
+    const url ="https://backend2-3-vwf9.onrender.com"
     const Burl = "http://localhost:5176";
 
 
