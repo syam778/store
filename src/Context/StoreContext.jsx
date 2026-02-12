@@ -7,10 +7,17 @@ export const StoreContext = createContext(null)
 const StoreContextProvider = ({children}) => {
 
     const [cartItems, setCartItems] = useState({})
-    
-    //const url = "http://localhost:3000"
-    const url ="https://backend2-3-vwf9.onrender.com"
-    const Burl = "http://localhost:5176";
+    /*"https://admin-add.netlify.app/",
+    "https://deliver-add.netlify.app/",
+    "https://user-ad.netlify.app/",
+    "https://store-add.netlify.app/", */
+
+
+
+
+    const url = "http://localhost:3000"
+    //const url ="https://backend2-3-vwf9.onrender.com";
+    const Burl ="https://store-add.netlify.app/"; //"http://localhost:5176";
 
 
     
