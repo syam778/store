@@ -15,7 +15,9 @@ const StoreContextProvider = ({children}) => {
 
 
 
-    const url = "http://localhost:3000"
+    //const url = "http://localhost:3000"
+    const url = "https://backend2-5-2t0w.onrender.com" //last
+
     //const url ="https://backend2-3-vwf9.onrender.com";
     const Burl ="https://store-add.netlify.app/"; //"http://localhost:5176";
 
