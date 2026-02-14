@@ -142,6 +142,19 @@
   transform: translateY(-3px);
   box-shadow: 0 10px 25px rgba(255, 152, 0, 0.4);
 }
+.item-size-row {
+  display: flex;
+  gap: 10px;
+}
+
+.item-size-row input {
+  flex: 2;
+}
+
+.item-size-row select {
+  flex: 1;
+}
+
 
 /* ================= RESPONSIVE ================= */
 @media (max-width: 768px) {
